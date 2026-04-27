@@ -977,4 +977,5 @@ def reviewresult(itemid):
         return redirect(url_for("home"))
     else:
         return render_template('read_review.html',review_data=review_data,item_details=item_details)
-app.run(debug=True)
+if __name__=="__main__":
+    app.run(debug=True)
