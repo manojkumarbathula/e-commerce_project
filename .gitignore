@@ -1,0 +1,6 @@
+.env
+ecom/
+ecom_old/
+__pycache__/
+*.pyc
+flask_session/

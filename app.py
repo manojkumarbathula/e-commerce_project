@@ -5,26 +5,28 @@ import razorpay
 from stoken import endata,dndata
 from cmail import send_mail
 from flask_bcrypt import Bcrypt
+from dotenv import load_dotenv
 import os
 import re
 from io import BytesIO
 from xhtml2pdf import pisa
 from werkzeug.utils import secure_filename #it checks wheather the file filename consists of unexpected '/',
 from mysql.connector import (connection)
-mydb=connection.MySQLConnection(user='root',host='localhost',password='Manoj@1612',database='ecom20')
+load_dotenv()
+mydb=connection.MySQLConnection(user='root',host='localhost',password=os.environ.get('DB_PASSWORD'),database='ecom20')
 BASE_DIR=os.path.abspath(os.path.dirname(__file__))#it finds exact app file directory path
 print(BASE_DIR)
 UPLOAD_FOLDER=os.path.join(BASE_DIR,'static','uploads')
 ALLOWED_EXTENSIONS={'png','jpeg','jpg','gif','webp'}
 MAX_CONTENT_LENGTH=6 * 1024 * 1024 #6MB
 os.makedirs(UPLOAD_FOLDER,exist_ok=True)
-client=razorpay.Client(auth=("rzp_test_SHy3zlzWZXNg3W", "B67PBLrrvi1BP38vgyIEdOHg"))
+client=razorpay.Client(auth=(os.environ.get('RAZORPAY_KEY_ID'),os.environ.get('RAZORPAY_KEY_SECRET')))
 app=Flask(__name__)
 app.config['SESSION_TYPE']='filesystem'
 app.config['UPLOAD_FOLDER']=UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH']=MAX_CONTENT_LENGTH
 bcrypt=Bcrypt(app)
-app.secret_key='code@999'
+app.secret_key=os.environ.get('SECRET_KEY')
 
 Session(app)
 @app.route('/')
@@ -577,15 +579,15 @@ def viewcart():
     else:
         flash('Pls login to view cart')
         return redirect(url_for('userlogin'))
-@app.route('/updatecart/<uuid:itemid>',methods=['POST'])
+@app.route('/updatecart/<itemid>',methods=['POST'])
 def updatecart(itemid):
     if not session.get('user'):
         flash('pls login to cart item')
         return redirect(url_for('home'))
-    if itemid not in session[session.get('user')]:
+    if itemid in session[session.get('user')]:
         print(session)
         updated_qyt=request.form['quantity']
-        session[session.get('user')][str(itemid)][1]=updated_qyt
+        session[session.get('user')][itemid][1]=updated_qyt
         session.modified=True
         print(session)
         flash('cart item quantity updated')
@@ -593,14 +595,14 @@ def updatecart(itemid):
     else:
         flash('No item found in cart')
         return redirect(url_for('viewcart')) 
-@app.route('/removecart/<uuid:itemid>')
+@app.route('/removecart/<itemid>')
 def removecart(itemid):
     if not session.get('user'):
         flash('pls login to cart item')
         return redirect(url_for('home'))
-    if itemid not in session[session.get('user')]:
+    if itemid in session[session.get('user')]:
         print(session)
-        session[session.get('user')].pop(str(itemid))
+        session[session.get('user')].pop(itemid)
         session.modified=True
         print(session)
         flash('cart item removed successfully')
