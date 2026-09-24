@@ -13,13 +13,20 @@ from xhtml2pdf import pisa
 from werkzeug.utils import secure_filename #it checks wheather the file filename consists of unexpected '/',
 from mysql.connector import (connection)
 load_dotenv()
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+db_ssl_ca = os.environ.get("DB_SSL_CA")
+
+if db_ssl_ca and not os.path.isabs(db_ssl_ca):
+    db_ssl_ca = os.path.join(BASE_DIR, db_ssl_ca)
+
 mydb = connection.MySQLConnection(
-    host=os.environ.get('DB_HOST'),
-    port=int(os.environ.get('DB_PORT')),
-    user=os.environ.get('DB_USER'),
-    password=os.environ.get('DB_PASSWORD'),
-    database=os.environ.get('DB_NAME'),
-    ssl_ca=os.environ.get("DB_SSL_CA"),
+    host=os.environ.get("DB_HOST"),
+    port=int(os.environ.get("DB_PORT", 3306)),
+    user=os.environ.get("DB_USER"),
+    password=os.environ.get("DB_PASSWORD"),
+    database=os.environ.get("DB_NAME"),
+    ssl_ca=db_ssl_ca,
     ssl_verify_cert=True
 )
 BASE_DIR=os.path.abspath(os.path.dirname(__file__))#it finds exact app file directory path
