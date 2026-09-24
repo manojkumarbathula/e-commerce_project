@@ -3,4 +3,5 @@ ecom/
 ecom_old/
 __pycache__/
 *.pyc
+*.pem
 flask_session/

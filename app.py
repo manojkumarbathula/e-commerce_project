@@ -13,7 +13,15 @@ from xhtml2pdf import pisa
 from werkzeug.utils import secure_filename #it checks wheather the file filename consists of unexpected '/',
 from mysql.connector import (connection)
 load_dotenv()
-mydb=connection.MySQLConnection(user='root',host='localhost',password=os.environ.get('DB_PASSWORD'),database='ecom20')
+mydb = connection.MySQLConnection(
+    host=os.environ.get('DB_HOST'),
+    port=int(os.environ.get('DB_PORT')),
+    user=os.environ.get('DB_USER'),
+    password=os.environ.get('DB_PASSWORD'),
+    database=os.environ.get('DB_NAME'),
+    ssl_ca=os.environ.get("DB_SSL_CA"),
+    ssl_verify_cert=True
+)
 BASE_DIR=os.path.abspath(os.path.dirname(__file__))#it finds exact app file directory path
 print(BASE_DIR)
 UPLOAD_FOLDER=os.path.join(BASE_DIR,'static','uploads')
@@ -980,4 +988,4 @@ def reviewresult(itemid):
     else:
         return render_template('read_review.html',review_data=review_data,item_details=item_details)
 if __name__=="__main__":
-    app.run(debug=True)
+   app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
